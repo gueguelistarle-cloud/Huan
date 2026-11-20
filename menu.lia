@@ -1,0 +1,489 @@
+-- Menu Roxo • base com senha
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local PASSWORD = "xitomesmovaichorar?"
+
+local PURPLE = Color3.fromRGB(170, 90, 255)
+local DARKPURPLE = Color3.fromRGB(110, 45, 190)
+local BLACK = Color3.fromRGB(10, 8, 15)
+local PANEL = Color3.fromRGB(22, 18, 32)
+local WHITE = Color3.fromRGB(245, 240, 255)
+local GRAY = Color3.fromRGB(160, 150, 175)
+
+local parentGui = (gethui and gethui()) or player:WaitForChild("PlayerGui")
+
+local old = parentGui:FindFirstChild("MenuRoxo")
+if old then old:Destroy() end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "MenuRoxo"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = parentGui
+
+local function corner(obj, r)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, r or 8)
+    c.Parent = obj
+end
+
+local function stroke(obj, color, t)
+    local s = Instance.new("UIStroke")
+    s.Color = color or PURPLE
+    s.Thickness = t or 1.5
+    s.Parent = obj
+end
+
+local function tween(obj, time, props)
+    TweenService:Create(obj, TweenInfo.new(time, Enum.EasingStyle.Quint), props):Play()
+end
+
+local function makeDraggable(frame, handle)
+    local dragging, startPos, startInput
+    handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            startInput = input.Position
+            startPos = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch) then
+            local d = input.Position - startInput
+            frame.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + d.X,
+                startPos.Y.Scale, startPos.Y.Offset + d.Y
+            )
+        end
+    end)
+end
+
+-- Notificações
+local function notify(text)
+    local n = Instance.new("TextLabel")
+    n.Size = UDim2.fromOffset(240, 40)
+    n.Position = UDim2.new(1, 10, 1, -60)
+    n.BackgroundColor3 = BLACK
+    n.TextColor3 = WHITE
+    n.Font = Enum.Font.GothamBold
+    n.TextSize = 13
+    n.Text = text
+    n.Parent = gui
+    corner(n, 8)
+    stroke(n)
+    tween(n, 0.4, {Position = UDim2.new(1, -255, 1, -60)})
+    task.delay(2.5, function()
+        tween(n, 0.4, {Position = UDim2.new(1, 10, 1, -60)})
+        task.wait(0.4)
+        n:Destroy()
+    end)
+end
+
+-- Tela de senha
+local login = Instance.new("Frame")
+login.Size = UDim2.fromOffset(300, 190)
+login.AnchorPoint = Vector2.new(0.5, 0.5)
+login.Position = UDim2.fromScale(0.5, 0.5)
+login.BackgroundColor3 = BLACK
+login.Parent = gui
+corner(login, 12)
+stroke(login, PURPLE, 2)
+
+local lt = Instance.new("TextLabel")
+lt.BackgroundTransparency = 1
+lt.Size = UDim2.new(1, 0, 0, 45)
+lt.Font = Enum.Font.GothamBlack
+lt.Text = "MENU ROXO"
+lt.TextSize = 22
+lt.TextColor3 = PURPLE
+lt.Parent = login
+
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(1, -40, 0, 38)
+box.Position = UDim2.fromOffset(20, 55)
+box.BackgroundColor3 = PANEL
+box.TextColor3 = WHITE
+box.PlaceholderText = "Digite a senha"
+box.PlaceholderColor3 = GRAY
+box.Text = ""
+box.ClearTextOnFocus = false
+box.Font = Enum.Font.Gotham
+box.TextSize = 14
+box.Parent = login
+corner(box)
+
+local enter = Instance.new("TextButton")
+enter.Size = UDim2.new(1, -40, 0, 36)
+enter.Position = UDim2.fromOffset(20, 103)
+enter.BackgroundColor3 = DARKPURPLE
+enter.TextColor3 = WHITE
+enter.Font = Enum.Font.GothamBold
+enter.TextSize = 14
+enter.Text = "ENTRAR"
+enter.Parent = login
+corner(enter)
+
+local status = Instance.new("TextLabel")
+status.BackgroundTransparency = 1
+status.Size = UDim2.new(1, 0, 0, 30)
+status.Position = UDim2.fromOffset(0, 148)
+status.Font = Enum.Font.Gotham
+status.TextSize = 12
+status.Text = ""
+status.TextColor3 = Color3.fromRGB(255, 100, 130)
+status.Parent = login
+
+-- Menu principal
+local menu = Instance.new("Frame")
+menu.Size = UDim2.fromOffset(420, 300)
+menu.AnchorPoint = Vector2.new(0.5, 0.5)
+menu.Position = UDim2.fromScale(0.5, 0.5)
+menu.BackgroundColor3 = BLACK
+menu.Visible = false
+menu.Parent = gui
+corner(menu, 12)
+stroke(menu, PURPLE, 2)
+
+local top = Instance.new("Frame")
+top.Size = UDim2.new(1, 0, 0, 40)
+top.BackgroundTransparency = 1
+top.Parent = menu
+makeDraggable(menu, top)
+
+local title = Instance.new("TextLabel")
+title.BackgroundTransparency = 1
+title.Size = UDim2.new(1, -60, 1, 0)
+title.Position = UDim2.fromOffset(15, 0)
+title.Font = Enum.Font.GothamBlack
+title.Text = "MENU ROXO"
+title.TextSize = 18
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.TextColor3 = PURPLE
+title.Parent = top
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.fromOffset(30, 30)
+close.Position = UDim2.new(1, -38, 0, 5)
+close.BackgroundColor3 = PANEL
+close.Text = "X"
+close.TextColor3 = WHITE
+close.Font = Enum.Font.GothamBold
+close.TextSize = 14
+close.Parent = top
+corner(close)
+
+local sidebar = Instance.new("Frame")
+sidebar.Size = UDim2.new(0, 110, 1, -50)
+sidebar.Position = UDim2.fromOffset(10, 45)
+sidebar.BackgroundColor3 = PANEL
+sidebar.Parent = menu
+corner(sidebar)
+
+local sideLayout = Instance.new("UIListLayout")
+sideLayout.Padding = UDim.new(0, 5)
+sideLayout.Parent = sidebar
+
+local sidePad = Instance.new("UIPadding")
+sidePad.PaddingTop = UDim.new(0, 6)
+sidePad.PaddingLeft = UDim.new(0, 6)
+sidePad.PaddingRight = UDim.new(0, 6)
+sidePad.Parent = sidebar
+
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1, -140, 1, -50)
+content.Position = UDim2.fromOffset(130, 45)
+content.BackgroundTransparency = 1
+content.Parent = menu
+
+local tabs = {}
+
+local function createTab(name)
+    local page = Instance.new("ScrollingFrame")
+    page.Size = UDim2.fromScale(1, 1)
+    page.BackgroundTransparency = 1
+    page.ScrollBarThickness = 3
+    page.ScrollBarImageColor3 = PURPLE
+    page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    page.CanvasSize = UDim2.new()
+    page.Visible = false
+    page.Parent = content
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 6)
+    layout.Parent = page
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 32)
+    btn.BackgroundColor3 = BLACK
+    btn.TextColor3 = GRAY
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 13
+    btn.Text = name
+    btn.Parent = sidebar
+    corner(btn, 6)
+
+    btn.MouseButton1Click:Connect(function()
+        for _, t in pairs(tabs) do
+            t.Page.Visible = false
+            t.Button.TextColor3 = GRAY
+            t.Button.BackgroundColor3 = BLACK
+        end
+        page.Visible = true
+        btn.TextColor3 = WHITE
+        btn.BackgroundColor3 = DARKPURPLE
+    end)
+
+    table.insert(tabs, {Page = page, Button = btn})
+    return page
+end
+
+local function addToggle(page, text, default, callback)
+    local state = default
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, -6, 0, 36)
+    b.BackgroundColor3 = PANEL
+    b.Text = ""
+    b.Parent = page
+    corner(b)
+
+    local l = Instance.new("TextLabel")
+    l.BackgroundTransparency = 1
+    l.Size = UDim2.new(1, -60, 1, 0)
+    l.Position = UDim2.fromOffset(10, 0)
+    l.Font = Enum.Font.Gotham
+    l.TextSize = 13
+    l.TextColor3 = WHITE
+    l.TextXAlignment = Enum.TextXAlignment.Left
+    l.Text = text
+    l.Parent = b
+
+    local sw = Instance.new("Frame")
+    sw.Size = UDim2.fromOffset(38, 18)
+    sw.Position = UDim2.new(1, -48, 0.5, -9)
+    sw.BackgroundColor3 = BLACK
+    sw.Parent = b
+    corner(sw, 9)
+
+    local dot = Instance.new("Frame")
+    dot.Size = UDim2.fromOffset(14, 14)
+    dot.Position = UDim2.fromOffset(2, 2)
+    dot.BackgroundColor3 = GRAY
+    dot.Parent = sw
+    corner(dot, 7)
+
+    local function refresh()
+        tween(dot, 0.2, {
+            Position = state and UDim2.fromOffset(22, 2) or UDim2.fromOffset(2, 2),
+            BackgroundColor3 = state and WHITE or GRAY,
+        })
+        tween(sw, 0.2, {BackgroundColor3 = state and PURPLE or BLACK})
+    end
+
+    b.MouseButton1Click:Connect(function()
+        state = not state
+        refresh()
+        callback(state)
+    end)
+
+    refresh()
+    callback(state)
+end
+
+local function addSlider(page, text, min, max, default, callback)
+    local holder = Instance.new("Frame")
+    holder.Size = UDim2.new(1, -6, 0, 50)
+    holder.BackgroundColor3 = PANEL
+    holder.Parent = page
+    corner(holder)
+
+    local l = Instance.new("TextLabel")
+    l.BackgroundTransparency = 1
+    l.Size = UDim2.new(1, -20, 0, 22)
+    l.Position = UDim2.fromOffset(10, 3)
+    l.Font = Enum.Font.Gotham
+    l.TextSize = 13
+    l.TextColor3 = WHITE
+    l.TextXAlignment = Enum.TextXAlignment.Left
+    l.Parent = holder
+
+    local bar = Instance.new("Frame")
+    bar.Size = UDim2.new(1, -20, 0, 6)
+    bar.Position = UDim2.fromOffset(10, 32)
+    bar.BackgroundColor3 = BLACK
+    bar.Parent = holder
+    corner(bar, 3)
+
+    local fill = Instance.new("Frame")
+    fill.BackgroundColor3 = PURPLE
+    fill.Parent = bar
+    corner(fill, 3)
+
+    local value = default
+    local function set(v)
+        value = math.clamp(math.floor(v + 0.5), min, max)
+        fill.Size = UDim2.fromScale((value - min) / (max - min), 1)
+        l.Text = text .. ": " .. value
+        callback(value)
+    end
+
+    local sliding = false
+    local function update(x)
+        local p = math.clamp((x - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+        set(min + (max - min) * p)
+    end
+
+    bar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            sliding = true
+            update(input.Position.X)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            sliding = false
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if sliding and (input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch) then
+            update(input.Position.X)
+        end
+    end)
+
+    set(default)
+end
+
+local function addButton(page, text, callback)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, -6, 0, 36)
+    b.BackgroundColor3 = DARKPURPLE
+    b.TextColor3 = WHITE
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 13
+    b.Text = text
+    b.Parent = page
+    corner(b)
+    b.MouseButton1Click:Connect(callback)
+end
+
+-- HUD (FPS e relógio)
+local hud = Instance.new("TextLabel")
+hud.Size = UDim2.fromOffset(170, 26)
+hud.Position = UDim2.fromOffset(10, 10)
+hud.BackgroundColor3 = BLACK
+hud.BackgroundTransparency = 0.2
+hud.TextColor3 = PURPLE
+hud.Font = Enum.Font.GothamBold
+hud.TextSize = 13
+hud.Visible = false
+hud.Parent = gui
+corner(hud, 6)
+stroke(hud)
+
+local showFPS, showClock = false, false
+local frames, fps, last = 0, 0, tick()
+
+RunService.RenderStepped:Connect(function()
+    frames += 1
+    if tick() - last >= 1 then
+        fps = frames
+        frames = 0
+        last = tick()
+    end
+    local parts = {}
+    if showFPS then table.insert(parts, "FPS: " .. fps) end
+    if showClock then table.insert(parts, os.date("%H:%M:%S")) end
+    hud.Visible = #parts > 0
+    hud.Text = table.concat(parts, "  •  ")
+end)
+
+-- Abas
+local inicio = createTab("Início")
+local visual = createTab("Visual")
+local config = createTab("Config")
+
+local welcome = Instance.new("TextLabel")
+welcome.Size = UDim2.new(1, -6, 0, 70)
+welcome.BackgroundColor3 = PANEL
+welcome.TextColor3 = WHITE
+welcome.Font = Enum.Font.Gotham
+welcome.TextSize = 13
+welcome.TextWrapped = true
+welcome.Text = "Bem-vindo, " .. player.DisplayName .. "!\nRight Shift ou botão MENU para abrir/fechar."
+welcome.Parent = inicio
+corner(welcome)
+
+addButton(inicio, "Testar notificação", function()
+    notify("Menu funcionando! 💜")
+end)
+
+addToggle(visual, "Mostrar FPS", false, function(v) showFPS = v end)
+addToggle(visual, "Mostrar relógio", false, function(v) showClock = v end)
+addSlider(visual, "Transparência do menu", 0, 60, 0, function(v)
+    menu.BackgroundTransparency = v / 100
+end)
+
+addButton(config, "Destruir menu", function()
+    gui:Destroy()
+end)
+
+tabs[1].Button.BackgroundColor3 = DARKPURPLE
+tabs[1].Button.TextColor3 = WHITE
+tabs[1].Page.Visible = true
+
+-- Botão flutuante
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.fromOffset(70, 36)
+toggleBtn.Position = UDim2.new(0, 10, 0.5, -18)
+toggleBtn.BackgroundColor3 = DARKPURPLE
+toggleBtn.TextColor3 = WHITE
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.TextSize = 13
+toggleBtn.Text = "MENU"
+toggleBtn.Visible = false
+toggleBtn.Parent = gui
+corner(toggleBtn)
+stroke(toggleBtn, WHITE, 1)
+makeDraggable(toggleBtn, toggleBtn)
+
+local function toggleMenu()
+    menu.Visible = not menu.Visible
+end
+
+toggleBtn.MouseButton1Click:Connect(toggleMenu)
+close.MouseButton1Click:Connect(function() menu.Visible = false end)
+
+local authenticated = false
+
+UserInputService.InputBegan:Connect(function(input, gp)
+    if not gp and authenticated and input.KeyCode == Enum.KeyCode.RightShift then
+        toggleMenu()
+    end
+end)
+
+enter.MouseButton1Click:Connect(function()
+    if box.Text == PASSWORD then
+        authenticated = true
+        login:Destroy()
+        menu.Visible = true
+        toggleBtn.Visible = true
+        notify("Acesso liberado!")
+    else
+        status.Text = "Senha incorreta."
+        box.Text = ""
+    end
+end)
